@@ -1,0 +1,82 @@
+ var config = require("./config");
+var clientModule = require("./httpclient");
+var directoryModule = require("./directory");
+var subscriptionsModule = require("./subscriptions");
+var notificationsModule = require("./notifications");
+
+/**
+ * This is a factory of wrappers of ARM mbed Device Server APIs, which mainly provide adminstrative functions 
+ * on your ARM mbed cloud account
+ * @class DeviceServer
+ * @constructor
+ * @param {Object} [dto]
+ * @param {String} [dto.accessKey] your mbed access key. Optional, if not provided, tries to retrieve the access key 
+ * from the config file using the dto.appName if provided, otherwise, tries to use the defaultKey in the condif file
+ * accessKey has precedence over appName
+ * @param {String} [dto.appName] the name of the application, used to retrieve the associated accessKey from the config file
+ * @param {Object} [dto.client] instance of the Client class. Has precedence over accessKey and appName
+ */
+function DeviceServer(dto) {
+  
+  if (!dto) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "dto cannot be null or empty"
+    };
+  }
+  
+  if (dto) {
+    this.accessKey = dto.accessKey ? dto.accessKey : (dto.appName) ? config.apps[dto.appName].accessKey : config.defaultAccessKey;
+  }
+  
+  if (!this.accessKey && !dto.client) {
+    
+    throw {
+      
+      errorCode: "Missing_Key",
+      errorDetail: "Could not find any access key. Kindly provide one or specify one in the config file"
+    };
+  }
+  
+  this.client = dto.client ? dto.client : new clientModule.HttpClient({accessKey:this.accessKey});
+}
+
+/**
+ * @method getDirectoryService
+ * @return {Object} instance of DirectoryService
+ */
+DeviceServer.prototype.getDirectoryService = function() {
+   return new directoryModule.DirectoryService(this.client);
+};
+
+/**
+ * @method getTrafficLimit
+ * @return {Object} instance of TrafficService
+ */
+DeviceServer.prototype.getTrafficLimit = function() {
+  
+  var queryParams = {
+    url: config.baseUrl + "/limits/"
+  };
+  
+  var response = this.client.callApi(queryParams);
+  return response;
+};
+
+/**
+ * @method getSubscriptionService
+ * @return {Object} instance of SubscriptionService
+ */
+DeviceServer.prototype.getSubscriptionService = function() {
+ return new subscriptionsModule.SubscriptionService(this.client);
+};
+
+/**
+ * @method getNotificationService
+ * @return {Object} instance of NotificationService
+ */
+DeviceServer.prototype.getNotificationService = function() {
+ return new notificationsModule.NotificationService(this.client);
+};

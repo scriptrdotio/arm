@@ -1,0 +1,121 @@
+
+var baseobjectModule = require("./baseobject");
+
+var config = require("./config");
+var util = require("./util");
+var subscriptionModule = require("./subscription");
+
+/**
+ * Wraps notifications API
+ * @class SubscriptionService
+ * @param {Object} client: an instance of HttpClient
+ * @param {Object} dto: optional addtional parameters
+ */
+function NotificationService(client, dto) {
+  
+  if (!client) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "NotificationService. client cannot be null or empty"
+    };
+  }
+  
+  this.client = client;
+}
+
+/**
+ * Register a callback script that will be invoked whenever an observed (subscribed to) resouce is modified
+ * or when an async response is obtained
+ * @method registerCallback
+ * @param {Object} [dto]
+ * @param {String} [dto.url]: the URL to which notifications need to be sent
+ * @param {Object} [dto.headers]: (key/value) that need to be sent with the request (Optional)
+ */
+NotificationService.prototype.registerCallback = function(dto) {
+  
+  if (!dto || !dto.url) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "NotificationService.registerCallback: dto, dto.url cannot be null or empty"
+    };
+  }
+  
+  var params = {url: dto.url};
+  if (dto.headers){
+    params.headers = dto.headers;
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/notification/callback",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "PUT",
+    params: params
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};		
+
+/**
+ * Remove the callback script
+ * @method removeCallback
+ * @param {Object} [dto]
+ * @param {String} [dto.url]: the URL of the callback script
+ */
+NotificationService.prototype.removeCallback = function(dto) {
+  
+  if (!dto || !dto.url) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "NotificationService.removeCallback: dto, dto.url cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/notification/callback",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "DELETE"
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};
+
+/**
+ * Persist a notification handler in the store. Whenever a notification is received, the arm/mbed/api/callback script will
+ * try to map the resource path of the incoming notification to one of the persisted handlers
+ * @param {String} the async-response-id obtained after calling readFromResource
+ * @param {Object} [callbackObject] 
+ * @param {String} [callbackObject.scriptName] : the name of the script where the callback function is defined if any. 
+ * If no function name is specified it is up to the script to handle the notification
+ * @param {String} [callbackObject.functionName] : the name of the function that handles the callback (optional)
+ */
+NotificationService.prototype.saveSubscription = function(id, callbackObj) {
+  
+  if (!id || !callbackObject) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.saveSubscription: id and callbackObject cannot be null or empty"
+    };
+  }
+  
+  if (!storage.global.arm){
+    storage.global.arm = {};
+  }
+  
+  storage.global.arm[id] = callbackObj;
+};

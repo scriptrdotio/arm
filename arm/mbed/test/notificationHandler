@@ -1,0 +1,3 @@
+function handler1(data) {
+  sendMail("karim@scriptr.io", "Handler1", "Notification received", data);
+}

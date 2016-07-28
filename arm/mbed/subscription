@@ -1,0 +1,24 @@
+ var baseobjectModule = require("./baseobject");
+
+/**
+ * Wraps APIs to manipulate a specific subscription
+ * @class Subscription
+ * @constructor
+ * @param {Object} [dto]: initialization data of the instance
+ * @param {Object} client: instance of the http client (optional, subclasses should decide if mandatory)
+ * @throws Error
+ */
+function Subscription(dto, client) {
+  
+   if (!client) {
+   
+    throw {
+      
+      errorCode: "Invalid_Parameter",
+      errorDetail: "Subscription. client cannot be null or empty"
+    };
+  }
+}
+
+Subscription.prototype =  new baseobjectModule.BaseObject({inheritance:true});
+Subscription.prototype.constructor = Subscription;

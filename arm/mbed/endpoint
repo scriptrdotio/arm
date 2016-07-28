@@ -1,0 +1,209 @@
+var baseobjectModule = require("./baseobject");
+var config = require("./config");
+var subscriptionsModule = require("./subscriptions");
+
+/**
+ * Wraps APIs to manipulate a specific endpoint
+ * @class Endpoint
+ * @constructor
+ * @param {Object} [dto]: initialization data of the instance
+ * @param {Object} client: instance of the http client (optional, subclasses should decide if mandatory)
+ * @throws Error
+ */
+function Endpoint(dto, client) {
+  
+   if (!client) {
+   
+    throw {
+      
+      errorCode: "Invalid_Parameter",
+      errorDetail: "Endpoint. client cannot be null or empty"
+    };
+  }
+  
+  baseobjectModule.BaseObject.apply(this, [dto, client]);
+  this.subscriptionMgr = new subscriptionsModule.SubscriptionService(this.client);
+}
+
+Endpoint.prototype =  new baseobjectModule.BaseObject({inheritance:true});
+Endpoint.prototype.constructor = Endpoint;
+
+/**
+ * @method listResources
+ * @return {Array} resource data
+ * @throws Error
+ */
+Endpoint.prototype.listResources = function() {
+  
+  var queryParams = {
+    url: config.baseUrl + "/endpoints/" +  this.name
+  };
+ 
+  return this.client.callApi(queryParams);
+};
+
+/**
+ * @method readFromResource
+ * @param {String} resourcePath: the path to the target resource. e.g. "/actuators/0/speed"
+ * @param {Object} [params]
+ * @param {Boolean} [params.cacheOnly:	if true, the response will come only from cache (optional). Defaults to false.
+ * @param {Boolean} [param.noResp]: I true, means the request is not guaranteed to arrive at the device (optional). Defaults to false.  
+ * @return {Object} resource data
+ * @throws Error
+ */
+Endpoint.prototype.readFromResource = function(resourcePath, params) {
+  
+  if (!resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "Endpoint.readFromResource: resourcePath cannot be null or empty"
+    };
+  }
+  
+  var queryParams = {
+    url: config.baseUrl + "/endpoints/" + this.name + resourcePath
+  };
+  
+  if (params) {
+    queryParams.params = params;
+  }
+  
+  return this.client.callApi(queryParams);
+};
+
+/**
+ * Write new values to existing resources, or to create new resources on the device. 
+ * The resource-path does not have to exist, it can be created by the call
+ * @method writeToResource
+ * @param {Object} [dto]
+ * @param {String} [dto.resourcePath]: the path to the target resource. e.g. "/actuators/0/speed"
+ * @param {String} [dto.contentType] : the content-type expected by the resource. Optional, defaults to "text/plain"
+ * @param {Object} [dto.data]: the data to send to the resource. Could be a JSON object or a string
+ * @return {String} msg
+ * @throws Error
+ */
+Endpoint.prototype.writeToResource = function(dto) {
+  
+  var response = this._writeToResource(dto, "PUT");
+  return response ? response : "execute instruction sent";
+};
+
+/**
+ * Execute functions on existing resources on the device.
+ * @method executeFunctionOnResource
+ * @param {Object} [dto]
+ * @param {String} [dto.resourcePath]: the path to the target resource. e.g. "/actuators/0/speed"
+ * @param {String} [dto.contentType] : the content-type expected by the resource. Optional, defaults to "text/plain"
+ * @param {Object} [dto.data]: the data to send to the resource. Could be a JSON object or a string
+ * @return {String} msg
+ * @throws Error
+ */
+Endpoint.prototype.executeFunctionOnResource = function(dto) {
+  
+  var response = this._writeToResource(dto, "POST");
+  return response ? response : "execute instruction sent";
+};
+
+/**
+ * @method deleteResource
+ * @param {Object} [dto]
+ * @param {String} [dto.resourcePath]: the path to the target resource. e.g. "/actuators/0/speed"
+ * @return {String} msg
+ * @throws Error
+ */
+Endpoint.prototype.deleteResource = function(dto) {
+  
+  if (! dto || !dto.resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "Endpoint.deleteResource: dto, dto.resourcePath cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/endpoints" + resourcePath,
+    method: "DELETE"
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "delete resource instruction sent";
+};
+
+/**
+ * @method listSubscriptions
+ * @return {Array} list of subscriptions for this current endpoints
+ * @throws Error
+ */
+Endpoint.prototype.listSubscriptions = function() {
+  return this.subcriptionMgr.listSubscriptions(this.name);
+};
+
+/**
+ * @method getSubscription
+ * @param {String} resourcePath: the path to the target resource. e.g. "/actuators/0/speed"
+ * @return {Object} data of the specified subscription
+ * @throws Error
+ */
+Endpoint.prototype.getSubscription = function(resourcePath) {
+  
+  if (!resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.getSubscription: resourcePath cannot be null or empty"
+    };
+  }
+  
+  return this.subscriptionMgr.getSubscription(this.name + resourcePath);
+};
+
+/**
+ * @method createSubscription
+ * @param {String} resourcePath: the path to the target resource. e.g. "/actuators/0/speed"
+ * @throws Error
+ */
+Endpoint.prototype.createSubscription = function(resourcePath) {
+  return this.subscriptionMgr.createSubscription(this.name + resourcePath);
+};
+
+/**
+ * @method deleteAllSubscriptions
+ * @param {String} resourcePath: the path to the target resource. e.g. "/actuators/0/speed"
+ * @throws Error
+ */
+Endpoint.prototype.deleteSubscription = function(resourcePath) {
+  return this.subscriptionMgr.deleteSubscription(this.name + resourcePath);
+};
+
+/*
+ * @method _writeToResource
+ */
+Endpoint.prototype._writeToResource = function(dto, method) {
+  
+  if (! dto || !dto.resourcePath || !dto.data) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "Endpoint.writeToResource: dto, dto.resourcePath and dto.data cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/endpoints" + resourcePath,
+    method: method,
+    headers: {
+      "Content-Type": dto.contentType ? dto.contentType : "text/plain",
+    },
+    params: dto.data
+  };
+  
+  return this.client.callApi(instructionParams);
+};			

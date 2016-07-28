@@ -1,0 +1,4 @@
+var notification = request.body;
+//if (notification.)
+
+//sendMail("karim@scriptr.io", "ARM callback", "Notification", request.rawBody);

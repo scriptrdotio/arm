@@ -1,0 +1,134 @@
+var config = require("./config");
+var util = require("./util");
+var subscriptionModule = require("./subscription");
+
+/**
+ * Wraps subscriptions API
+ * @class SubscriptionService
+ * @param {Object} client: an instance of HttpClient
+ * @param {Object} dto: optional addtional parameters
+ */
+function SubscriptionService(client, dto) {
+  
+  if (!client) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService. client cannot be null or empty"
+    };
+  }
+  
+  this.client = client;
+}
+
+/**
+ * @method listSubscriptions
+ * @param {String} endpointName: (optional), if provided will list all subsrciptions of the given endpoint
+ * @return {Array} array of Subscription instances
+ * @throws Error
+ */
+SubscriptionService.prototype.listSubscriptions = function(endpointName) {
+  
+  var queryParams = {
+    url: config.baseUrl + "/subscriptions/"
+  };
+  
+  var reponse = this.client.callApi(queryParams);
+  return util.jsonListToClassInstanceList(response, subscriptionModule.Subscription, this.client);
+};
+
+/**
+ * @method getSubscription
+ * @param {String} resourcePath : the path to the resource starting from the endpoint, e.g. endpoint_name/devicex/xyz
+ * @return {Object} instance of ./subscription.Subscription
+ * @throws Error
+ */
+SubscriptionService.prototype.getSubscription = function(resourcePath) {
+  
+  if (!resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.getSubscription: resourcePath cannot be null or empty"
+    };
+  }
+  
+  var queryParams = {
+    url: config.baseUrl + "/subscriptions/" + resourcePath
+  };
+  
+  var reponse = this.client.callApi(queryParams);
+  return util.jsonToClassInstance(response, subscriptionModule.Subscription, this.client);
+};
+
+/**
+ * @method createSubscriptions
+ * @param {String} resourcePath : the path to the monitored resource (includes the endpoint name) 
+ * @param {Array} subscribtionData: list of subscription "requests" [{endpoint-name: "name1", resource-path: ["/somepath"]}, ...]
+ * @throws Error
+ */
+SubscriptionService.prototype.createSubscription = function(resourcePath, callbackObject) {
+  
+  if (!resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.createSubscriptions: resourcePath cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/subscriptions/" + resourcePath,
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};	
+
+/**
+ * @method deleteSubscription
+ * @param {String} resourcePath: the complete path to the target resource. e.g. "some_endpointname/actuators/0/speed"
+ * @throws Error
+ */
+SubscriptionService.prototype.deleteSubscription = function(resourcePath) {
+  
+  if (!resourcePath) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.deleteSubscription: resourcePath cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    url: config.baseUrl + "/subscriptions/" + resourcePath,
+    method: "DELETE"
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};
+
+/**
+ * @method deleteAllSubscriptions
+ * @throws Error
+ */
+SubscriptionService.prototype.deleteAllSubscriptions = function() {
+    
+  var instructionParams = {
+    url: config.baseUrl + "/subscriptions",
+    method: "DELETE"
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};

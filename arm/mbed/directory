@@ -1,0 +1,64 @@
+ var config = require("./config");
+var util = require("./util");
+var endpointModule = require("./endpoint");
+
+/**
+ * Wraps directory APIs
+ * @class DirectoryService
+ * @constructor
+ * @param {Object} client: an instance of HttpClient
+ * @param {Object} dto: optional addtional parameters
+ */
+function DirectoryService(client, dto) {
+  
+  if (!client) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "client cannot be null or empty"
+    };
+  }
+  
+  this.client = client;
+}
+
+/**
+ * @method listEndpoints
+ * @return {Array} array of Endpoint instances
+ * @throws Error
+ */
+DirectoryService.prototype.listEndpoints = function() {
+  
+  var queryParams = {
+    url: config.baseUrl + "/endpoints"
+  };
+  
+  var response = this.client.callApi(queryParams);
+  return util.jsonListToClassInstanceList(response, endpointModule.Endpoint, this.client);
+};
+
+/**
+ * @method getEndpoint
+ * @param {String} endpointName: the name of the targeted endpoint 
+ * @return {Object} instance of Endpoint if found
+ * @throws Error
+ */
+DirectoryService.prototype.getEndpoint = function(endpointName) {
+  
+  if (!endpointName) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "DirectoryService.getEndpoint: endpointName cannot be null or empty"
+    };
+  }
+  
+  var queryParams = {
+    url: config.baseUrl + "/endpoints/" + endpointName
+  };
+  
+  var response = this.client.callApi(queryParams);
+  return util.jsonToClassInstance(response, endpointModule.Endpoint, this.client);
+};			

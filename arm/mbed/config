@@ -1,0 +1,17 @@
+ // API version, can be left empty
+var apiVer = "v2";
+
+// Base prefix of API endpoints
+var baseUrl = "https://api.connector.mbed.com" + (apiVer ? "/" + apiVer : "");
+
+// Defaults application access key to use is no other access key was defined
+var defaultAccessKey = "";
+
+// Configuration of your applications on mbed device connector service
+var apps = {
+  
+  // xxx = app name
+  "scriptrtest": {
+    accessKey: "" // access key for app xxx
+  }
+};			
