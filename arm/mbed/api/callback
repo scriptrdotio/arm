@@ -1,4 +1,39 @@
-var notification = request.body;
-//if (notification.)
+var log = require("log"); log.setLevel("info");
+var handlerConfig = require("../handlers/config");
 
-//sendMail("karim@scriptr.io", "ARM callback", "Notification", request.rawBody);
+/**
+ * This is the default callback script that receives any notification sent by ARM MBED devices.
+ * It uses the /arm/mbed/handlers/config file to determine what handler to invoke depending on the type
+ * of notification is received. The callback script conveys the received notification to the handler function.
+ */
+
+var notification = request.body;
+
+if (notification) {
+  
+  log.info("Received notification " + JSON.stringify(notification));
+  
+  var type = Object.keys(notification)[0];
+  
+  log.info("Type " + type);
+  
+  if (type) {
+    
+    var pathToHandler = handlerConfig.handlers[type].path;
+    var handlerName = handlerConfig.handlers[type].name;
+ 
+    log.info("Handler config " +  JSON.stringify(handlerConfig.handlers[type]));
+    
+    if (pathToHandler && handlerName) {
+
+      var handlerScript = require(pathToHandler);
+      var handler = handlerScript[handlerName];
+      var result = handler(notification);
+      log.info("Handler invocation result " + JSON.stringify(result));
+    }else {
+      log.error("Could not find a handler for notification type " +  type +  " in /arm/mbed/handler/config");
+    }  
+  }
+}
+
+return true;
