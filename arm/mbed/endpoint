@@ -2,6 +2,9 @@ var baseobjectModule = require("./baseobject");
 var config = require("./config");
 var subscriptionsModule = require("./subscriptions");
 
+// List of the ids of the async requests, as returned by the ARM MBED plaform 
+var ASYNC_NOTIFCATION_ID_LIST = "asyncNotificationIdList";
+
 /**
  * Wraps APIs to manipulate a specific endpoint
  * @class Endpoint
@@ -19,6 +22,10 @@ function Endpoint(dto, client) {
       errorCode: "Invalid_Parameter",
       errorDetail: "Endpoint. client cannot be null or empty"
     };
+  }
+  
+  if (!storage.global[ASYNC_NOTIFCATION_ID_LIST]) {
+    storage.global[ASYNC_NOTIFCATION_ID_LIST] = {};
   }
   
   baseobjectModule.BaseObject.apply(this, [dto, client]);
@@ -45,13 +52,17 @@ Endpoint.prototype.listResources = function() {
 /**
  * @method readFromResource
  * @param {String} resourcePath: the path to the target resource. e.g. "/actuators/0/speed"
- * @param {Object} [params]
+ * @param {Object} [params] optional
  * @param {Boolean} [params.cacheOnly:	if true, the response will come only from cache (optional). Defaults to false.
  * @param {Boolean} [param.noResp]: I true, means the request is not guaranteed to arrive at the device (optional). Defaults to false.  
+ * @param {Object} [handlerConfig] optional. Configuration of the handler to invoke when a response is received for the request. 
+ * Defaults to what is defined in the "handlers" variable of the "/arm/mbed/handlers/config" script.
+ * @param {Object} [handlerConfig.path] : the path to the script that contains the handler function, e.g. "/arm/mbed/handlers/asynchandler"
+ * @param {Object} [handlerConfig.name] : the name to the handler function to invoke e.g. "handleAsyncResponses"
  * @return {Object} resource data
  * @throws Error
  */
-Endpoint.prototype.readFromResource = function(resourcePath, params) {
+Endpoint.prototype.readFromResource = function(resourcePath, params, handlerConfig) {
   
   if (!resourcePath) {
     
@@ -70,7 +81,16 @@ Endpoint.prototype.readFromResource = function(resourcePath, params) {
     queryParams.params = params;
   }
   
-  return this.client.callApi(queryParams);
+  var response = this.client.callApi(queryParams);
+  
+  // if a handler configuration was specified, persist in in the storage
+  if (response && response["async-response-id"] && handlerConfig) {
+    
+    var key = response["async-response-id"];
+    storage.global[ASYNC_NOTIFCATION_ID_LIST][key] = handlerConfig; 
+  }
+  
+  return response;
 };
 
 /**
