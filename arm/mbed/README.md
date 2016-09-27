@@ -47,9 +47,9 @@ passing any parameter,
 ### Adding a notification callback
 
 Reading from a device or obtaining automatic notifications from devices is an asynchronous activity that requires you to register
-a callback. Callbacks should be URL of scripts. 
+a callback. Callbacks should be URLs of scripts. 
 
-The connector provides you with a default callback script "/arm/mbed/api/callback" that knows how to forwards the notification types 
+The connector provides you with a default callback script "/arm/mbed/api/callback" that knows how to forward the notification types 
 to their specific handlers, based on the content of the "/arm/mbed/handlers/config" script, which we describe in more details below. 
 You can reuse this callback or provide a URL to your own service/API.
 
