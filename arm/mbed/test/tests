@@ -2,10 +2,15 @@
 
 try {
   
+  // Create an instance of DeviceServer by provider your ARM MBED app key
   //var deviceServer = new deviceserverModule.DeviceServer({accessKey:"spEnuPFugD7kzccjnwxcRxJNVzIHDGydmZE7yN8O3jOKBd0O1vFFQBofpHpqQ1SW9j3P7qsOyBsOQxenCKmJcAKGvxApTJeC0PMf"});
+  
+  // Create an instance of DeviceServer using the app key specified in the configuration script
   var deviceServer = new deviceserverModule.DeviceServer({appName:"scriptrtest"});
+  
   var data = {};
   
+  // List all available devices endpoints
   var directoryService = deviceServer.getDirectoryService();
   data.listEndpoints = directoryService.listEndpoints();
   /*try {
@@ -18,14 +23,19 @@ try {
    * Play with notifications
    */
   var notificationService = deviceServer.getNotificationService();
-  //data.registerCallback = notificationService.registerCallback({url:"https://iotdemos.scriptrapps.io/modules/arm/mbed/api/callback"});
-  data.removeCallback = notificationService.removeCallback({url:"https://iotdemos.scriptrapps.io/modules/arm/mbed/api/callback"}); 
   
+  // Register a notification callback if none already registered
+  //data.registerCallback = notificationService.registerCallback({url:"https://iotdemos.scriptrapps.io/arm/mbed/api/callback"});
+  
+  // Unregister existing callback
+  //data.removeCallback = notificationService.removeCallback(); 
+   
   /*
    * Play with endpoints and resources
    */
-  if (data.listEndpoints) {
+  if (data.listEndpoints && data.listEndpoints.length > 0) {
     
+    // List resources exposed by available endpoints (devices)
     var endpoint = data.listEndpoints[0];
     data.listResources = endpoint.listResources();
     
@@ -34,23 +44,39 @@ try {
      */
     if (data.listResources.length > 0){
       
-      var resource = data.listResources[2];
-      
-      var subscriptionService = deviceServer.getSubscriptionService();      
+      //var resource = data.listResources[2];      
+      //var subscriptionService = deviceServer.getSubscriptionService();      
       //data.createSubscription = endpoint.createSubscription(resource.uri);
       //data.getSubscriptionFromEndpoint = endpoint.getSubscription(resource.uri);
       //data.getSubscriptionFromService = subscriptionService.getSubscription(endpoint.name + resource.uri);
       //data.listSubscriptions = subscriptionService.listSubscriptions();
       //data.deleteSubscription = endpoint.deleteSubscription(resource.uri);
-      subscriptionService.deleteAllSubscriptions();
-    } 
+      //subscriptionService.deleteAllSubscriptions();
+    }
     
     /*
-     * read from and write to resource
+     * Read from resouces
      */
-    //data.readFromResource = endpoint.readFromResource(resource.uri);
+    for (var i = 0; data.listResources && i < data.listResources.length; i++) {
+
+      var resource = data.listResources[i];
+      try {
+
+        var handlerConfig = {
+
+          path: "/arm/mbed/test/notificationHandler",
+          name: "handler1"
+        };
+
+        var readFromResource = endpoint.readFromResource(resource.uri, null, handlerConfig);
+        console.log(JSON.stringify(readFromResource));
+      }catch(exception){
+        console.log(JSON.stringify(exception));
+      }
+    } 
   }
   
+  // Get admin data (traffic limit)
   //data.getTrafficLimit = deviceServer.getTrafficLimit();
   return data;
 }catch(exception) {

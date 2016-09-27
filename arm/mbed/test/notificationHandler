@@ -1,3 +1,4 @@
+// Simple handler function to be used when testing endpoint.readFromResource
 function handler1(data) {
-  sendMail("karim@scriptr.io", "Handler1", "Notification received", data);
+  sendMail("YOUR_EMAIL", "Handler1", "Notification received", JSON.stringify(data));
 }
