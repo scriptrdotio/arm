@@ -105,12 +105,46 @@ var handlers = {
    }
 };
 ```
-
+Note that you might want to keep the default handler that is currently associated to notifications of type "async-responses" ("asyncHandler") as it contains a generic implementation that will automatically invoke any handler you might have specified when reading from an endpoint (next paragraph).
 
 ### Reading from an endpoint
 
+Reading data from an endpoint is mainly about instructing an endpoint to send data whenever possible to a callback. Reading is done uby invoking the "readFromResource" method of an endpoint instance and passing the URL of the target resource (a property of the endpoint, such as the temperature). Optionnaly you can also pass a handler configuration, i.e. the path to a script that contains a handler function and the name of that latter. 
 
+**Note**: if you are still using the default notifications handlers configuration as described above, any response sent by the device will be caught by the callback script that will convey it to the "asyncHandler" function, which will further invoke any specific handler you might have specified when calling the "readFromResource" method. 
 
+```
+// list all resources of our endpoint
+var resourceList = endpoint.listResources();
+
+// we instruct our connector to forward any response to the below read request to the "handler1" function 
+// defined in the "/arm/mbed/test/notificationHandler" script
+var handlerConfig = {
+ path: "/arm/mbed/test/notificationHandler",
+ name: "handler1"
+};
+
+// read from one of the first resource 
+var readFromResource = endpoint.readFromResource(resourceList[0], null, handlerConfig);
+```
+
+### Writing to an resource
+
+When writing to a resource of an endpoint, you need to specify the type of content you are sending:
+
+```
+// list all resources of our endpoint
+var resourceList = endpoint.listResources();
+
+// let's say we need to send the target temperature to a thermostat
+var writeParams = {
+  resourcePath: resourceList[0].uri,
+  contentType: "text/plain",
+  data: "22"
+};
+
+endpoint.writeToResource(writeParams);
+```
 
 ## Configuring access to ARM mbed Device connector service
 
@@ -128,3 +162,4 @@ var apps = {
 };		
 ```
 
+**Note**: there are many more available features in the connector. You can review and test them in the "/arm/mbed/test/test" script.
