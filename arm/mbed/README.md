@@ -44,7 +44,7 @@ var endpoint = directoryService.getEndpoint("/actuator/0/speed");
 passing any parameter,
 - You can also use the directory service to list the available endpoints then pick an endpoint from the list.
 
-### Adding adding a notification callback
+### Adding a notification callback
 
 Reading from a device or obtaining automatic notifications from devices is an asynchronous activity that requires you to register
 a callback. Callbacks should be URL of scripts. 
