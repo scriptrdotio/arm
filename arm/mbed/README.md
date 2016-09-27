@@ -53,7 +53,59 @@ The connector provides you with a default callback script "/arm/mbed/api/callbac
 to their specific handlers, based on the content of the "/arm/mbed/handlers/config" script, which we describe in more details below. 
 You can reuse this callback or provide a URL to your own service/API.
 
-Registering a callback is pretty easy and is done using the NotificationService
+Registering a callback is pretty easy and is done using the NotificationService. In the example herefater, we subscribe the default callback script:
+```
+var notificationService = deviceServer.getNotificationService();
+notificationService.registerCallback({url:"https://yoursubdomain.scriptrapps.io/arm/mbed/api/callback"});
+```
+Removing (unregistering) the callback is easy as well:
+```
+notificationService.removeCallback(); 
+```
+
+### Configuring notification handlers
+
+Handlers are functions in scripts that know how to handle a given notification type. As a reminder, the following are the notification types that exist:
+
+- notifications: contains resource notifications. Note that the payload is base64-encoded.
+- registrations: list of new endpoints that have registered with mbed Device Connector (with resources).
+- reg-updates:	list of endpoints that have updated registration.
+- de-registrations: list of endpoints that were removed in a controlled manner.
+- registrations-expired: list of endpoints that were removed because the registration has expired.
+- async-responses:	responses to asynchronous proxy request. Note that the payload is base64-encoded.
+
+You can associate a specific handler to a given notification type using the "/arm/mbed/handlers/config" configuration file. This latter
+comes pre-configured to use the "/arm/mbed/handlers/defaulthandler" and its "defaultHandle" and "asyncHandler" functions. More on them further on. You can modify the content of the configuration file to point to your own scripts/functions:
+
+```
+var handlers = {  
+   "notifications": {     
+     path: "/arm/mbed/handlers/mynotificationhandlerscript", // the path to the script that contains the handler of "notifications"
+     name: "handleNotifications" // the name of the function to invoke in the script
+   },  
+  "registrations": {     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },  
+  "reg-updates": {     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },  
+  "de-registrations": {     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },  
+  "registrations-expired":{    
+    path: "/arm/mbed/handlers/defaulthandler",
+    name: "defaultHandle"
+   },  
+  "async-responses":{    
+    path: "/arm/mbed/handlers/defaulthandler",
+    name: "asyncHandler"
+   }
+};
+```
+
 
 ### Reading from an endpoint
 
