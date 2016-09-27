@@ -2,7 +2,7 @@
 ARM provides the [ARM mbed™ Device Connector service](https://connector.mbed.com/), a cloud service that allows connecting IoT devices
 to the cloud, notably to ARM's [mbed IoT device platform](https://www.mbed.com/en/) cloud platform. Using ARM's device connector, devices
 operated by [ARM's mbed OS](https://www.mbed.com/en/platform/mbed-os/) become at the reach of REST APIs calls using the Device Connector
-service's APIs. The pupose of our connector is to expose the latter to scriptr.io developers as first class JavaScript objects 
+service's APIs. The purpose of our connector is to expose the latter to scriptr.io developers as first class JavaScript objects 
 that can be easily invoked from within their scripts.
 
 ### Prerequisites
@@ -12,7 +12,7 @@ that can be easily invoked from within their scripts.
 
 ### How to use
 
-The connector provides different classes that are abstractions of the different APIs exposed by ARM's mbed Device Connector 
+The connector provides classes that are abstractions of the different APIs exposed by ARM's mbed Device Connector 
 (aka Device Server):
 
 - DeviceServer: is a kind of factory that gives you access to the other services. It is the main entry point of your application,
@@ -28,7 +28,7 @@ and write to them, i.e. send them values, instruct them to execute functions, et
 There are two ways of doing that:
 
 - Either by invoking the constructor of the Endpoint class, which is straightforward but requires you
-to pass an instance of the Client class, which encapsulate the technicalities on how to invoke ARM's APIs, 
+to pass an instance of the Client class, which encapsulates the technicalities on how to invoke ARM's APIs, 
 - Or by asking the DirectoryService to give you such a reference. 
 
 In the below example, we illustrate that second option. We first start by creating an instance of DeviceServer, then obtain from the latter
