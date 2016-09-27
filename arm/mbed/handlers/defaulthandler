@@ -1,0 +1,61 @@
+var log = require("log"); log.setLevel("info");
+
+// List of the ids of the async requests, as returned by the ARM MBED plaform 
+var ASYNC_NOTIFCATION_ID_LIST = "asyncNotificationIdList";
+
+ if (!storage.global[ASYNC_NOTIFCATION_ID_LIST]) {
+   storage.global[ASYNC_NOTIFCATION_ID_LIST] = {};
+ }
+
+/**
+ * Default notification handler, does nothing exepts logging the notification
+ * @function defaultHandle
+ * @param {Object} notification: the notification object, as received by the callback script
+ */
+function defaultHandle(notification) {
+  
+  log.info("Default Handler received notification " + JSON.stringify(notification));
+  return "echo " + JSON.stringify(notification);
+}
+
+/**
+ * This is the default handler of async notifications. It will try to find the path and name of the required
+ * handler from the storage. If not found, it just logs the notification
+ * @function asyncHandler
+ * @param {Object} notification: the notification object, as received by the callback script
+ */
+function asyncHandler(notification) {
+ 
+  log.info("async response handler receiving " + JSON.stringify(notification));
+  if (notification) {
+    
+    var list = notification["async-responses"];
+    for (var i = 0; list && i < list.length; i++) {
+
+      var asyncRequestId = list[i].id;
+      log.info("Async response id " + asyncRequestId);
+
+      // load the handler path + name from the storage, if any
+      var handlerConfig = storage.global[ASYNC_NOTIFCATION_ID_LIST][asyncRequestId];
+      log.info("handler config " + JSON.stringify(handlerConfig));
+      if (handlerConfig) {
+
+        var script = require(handlerConfig.path);
+        var handler = script[handlerConfig.name];
+
+        // if found, invoke the handler
+        if (script && handler) {
+          handler(list[i]);        
+        }else {
+          log.error("Storage has invalid handler configuration for " + asyncRequestId);
+        }     
+      }else {
+        log.error("Could not find chandler configuration for " + asyncRequestId);
+      }
+
+      log.info("Async Handler received notification " + JSON.stringify(list[i]));     
+    }
+  }    
+  
+  return "echo...";
+}

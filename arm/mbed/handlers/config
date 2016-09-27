@@ -1,0 +1,54 @@
+/**
+ * Handlers configuration
+ * Associate a handler script + function to each notification type.
+ * This file is used by /arm/mbed/api/callback to determine what handler to invoke
+ * upon reception of a notification
+ * Feel free to modify the below to point to your own scripts/handlers.
+ *
+ ** Notification types **
+ * notifications: contains resource notifications. Note that the payload is base64-encoded.
+ * registrations: list of new endpoints that have registered with mbed Device Connector (with resources).
+ * reg-updates:	list of endpoints that have updated registration.
+ * de-registrations: list of endpoints that were removed in a controlled manner.
+ * registrations-expired: list of endpoints that were removed because the registration has expired.
+ * async-responses:	responses to asynchronous proxy request. Note that the payload is base64-encoded.
+ */
+
+var handlers = {
+  
+   "notifications": {
+     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },
+  
+  "registrations": {
+     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },
+  
+  "reg-updates": {
+     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },
+  
+  "de-registrations": {
+     
+     path: "/arm/mbed/handlers/defaulthandler",
+     name: "defaultHandle"
+   },
+  
+  "registrations-expired":{
+    
+    path: "/arm/mbed/handlers/defaulthandler",
+    name: "defaultHandle"
+   },
+  
+  "async-responses":{
+    
+    path: "/arm/mbed/handlers/defaulthandler",
+    name: "asyncHandler"
+   }
+};
