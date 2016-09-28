@@ -69,7 +69,7 @@ SubscriptionService.prototype.getSubscription = function(resourcePath) {
  * @param {Array} subscribtionData: list of subscription "requests" [{endpoint-name: "name1", resource-path: ["/somepath"]}, ...]
  * @throws Error
  */
-SubscriptionService.prototype.createSubscription = function(resourcePath, callbackObject) {
+SubscriptionService.prototype.createSubscription = function(resourcePath) {
   
   if (!resourcePath) {
     
@@ -92,6 +92,37 @@ SubscriptionService.prototype.createSubscription = function(resourcePath, callba
   var response = this.client.callApi(instructionParams);
   return response ? response : "success";
 };	
+
+/**
+ * @method createScreateAutoSubscriptions
+ * @param {Array} subscribtionData: list of subscription "requests" [{endpoint-name: "name1", resource-path: ["/somepath"]}, ...]
+ * @throws Error
+ */
+SubscriptionService.prototype.createAutoSubscriptions = function(subscribtionData) {
+  
+  if (!subscribtionData || subscribtionData.length == 0) {
+    
+    throw {
+      
+      errorCode: "Missing_Parameter",
+      errorDetail: "SubscriptionService.createAutoSubscriptions: subscribtionData cannot be null or empty"
+    };
+  }
+  
+  var instructionParams = {
+    
+    url: config.baseUrl + "/subscriptions/",
+    method: "PUT",
+    params: subscribtionData,
+    headers: {
+      "Content-Type": "application/json"
+    }
+  };
+  
+  var response = this.client.callApi(instructionParams);
+  return response ? response : "success";
+};	
+
 
 /**
  * @method deleteSubscription
