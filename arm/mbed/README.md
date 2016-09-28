@@ -140,7 +140,7 @@ var handlerConfig = {
 var readFromResource = endpoint.readFromResource(resourceList[0], null, handlerConfig);
 ```
 
-### Writing to an resource
+### Writing to a resource
 
 When writing to a resource of an endpoint, you need to specify the type of content you are sending:
 
