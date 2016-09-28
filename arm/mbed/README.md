@@ -107,9 +107,21 @@ var handlers = {
 ```
 Note that you might want to keep the default handler that is currently associated to notifications of type "async-responses" ("asyncHandler") as it contains a generic implementation that will automatically invoke any handler you might have specified when reading from an endpoint (next paragraph).
 
+### Creating subscriptions
+
+Subcriptions are means to stay permanently informed of the occurrence of events that occur on a given endpoint, instead of explicitly sending read intructions. You can subscribe to an individual resource of an endpoint or ask to subscribe to all event occurrences on some  resources of a list of endpoints. Both cases are illustrated in the below code sample:
+
+```
+endpoint.createSubscription("/speed"); // subscribe to the "speed" resource of the current endpoint
+
+var subscriptionService = deviceServer.getSubscriptionService(); // get an instance of SubscriptionService    
+var subscriptionList = [ {endpoint-name: "node-001", resource-path: ["/dev"]}, {endpoint-type: "Light", resource-path: ["/sen/*"]} ];
+subscriptionService.createAutoSubscriptions(subscriptionList);
+```
+
 ### Reading from an endpoint
 
-Reading data from an endpoint is mainly about instructing an endpoint to send data whenever possible to a callback. Reading is done uby invoking the "readFromResource" method of an endpoint instance and passing the URL of the target resource (a property of the endpoint, such as the temperature). Optionnaly you can also pass a handler configuration, i.e. the path to a script that contains a handler function and the name of that latter. 
+Reading data from an endpoint is mainly about instructing an endpoint to send data whenever possible to a callback. Reading is done uby invoking the "readFromResource" method of an endpoint instance and passing the URL of the target resource (a property of the endpoint, such as the temperature). Optionally you can also pass a handler configuration, i.e. the path to a script that contains a handler function and the name of that latter. 
 
 **Note**: if you are still using the default notifications handlers configuration as described above, any response sent by the device will be caught by the callback script that will convey it to the "asyncHandler" function, which will further invoke any specific handler you might have specified when calling the "readFromResource" method. 
 
