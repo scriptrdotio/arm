@@ -35,6 +35,7 @@ In the below example, we illustrate that second option. We first start by creati
 an instance of DirectoryService that we use to obtain your endpoint, passing its url to identify it:
 
 ```
+var deviceserverModule = require("/arm/mbed/deviceserver");
 var deviceServer = new deviceserverModule.DeviceServer({accessKey:"YOUR_ARM_ACCESS_KEY"});
 var directoryService = deviceServer.getDirectoryService();
 var endpoint = directoryService.getEndpoint("/actuator/0/speed");
