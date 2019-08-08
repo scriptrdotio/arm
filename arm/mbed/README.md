@@ -1,4 +1,4 @@
-### About The connector to ARM mbed Device Connector :)
+### About The connector to ARM mbed Device Connector
 ARM provides the [ARM mbed™ Device Connector service](https://connector.mbed.com/), a cloud service that allows connecting IoT devices
 to the cloud, notably to ARM's [mbed IoT device platform](https://www.mbed.com/en/) cloud platform. Using ARM's device connector, devices
 operated by [ARM's mbed OS](https://www.mbed.com/en/platform/mbed-os/) become at the reach of REST APIs calls using the Device Connector
